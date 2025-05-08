@@ -2,7 +2,7 @@
 const timeout = 1000;
 if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
   // Get credentials from storage
-  chrome.storage.sync.get(['username', 'password', 'totpSecret', 'staticTotpEnabled', 'staticTotpCode'], function(data) {
+  chrome.storage.sync.get(['username', 'password', 'totpSecret'], function(data) {
     if (!data.username || !data.password) {
       console.log('USYD Auto Login: Credentials not found');
       return;
@@ -113,10 +113,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         console.log("Found TOTP input field");
         let totpCode;
 
-        if (data.staticTotpEnabled && data.staticTotpCode) {
-          totpCode = data.staticTotpCode;
-          console.log("Using static TOTP code");
-        } else if (data.totpSecret) {
+        if (data.totpSecret) {
           totpCode = generateTOTP(data.totpSecret);
           console.log("Generated dynamic TOTP code:", totpCode);
         } else {

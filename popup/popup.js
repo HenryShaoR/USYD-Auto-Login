@@ -11,33 +11,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const totpTimerProgress = document.getElementById('totp-timer-progress');
   const totpSecondsEl = document.getElementById('totp-seconds');
   
-  // Static TOTP elements
-  const staticTotpEnabled = document.getElementById('static-totp-enabled');
-  const staticTotpCode = document.getElementById('static-totp-code');
-  const saveStaticBtn = document.getElementById('save-static-btn');
-  
   let totpSecret = null;
   let totpUpdateInterval = null;
 
   // Load saved credentials
-  chrome.storage.sync.get(['username', 'password', 'totpSecret', 'staticTotpEnabled', 'staticTotpCode'], function(data) {
+  chrome.storage.sync.get(['username', 'password', 'totpSecret'], function(data) {
     if (data.username) usernameInput.value = data.username;
     if (data.password) passwordInput.value = data.password;
     if (data.totpSecret) {
       totpSecret = data.totpSecret;
-      totpSecretEl.textContent = 'TOTP Secret: ' + data.totpSecret;
+      totpSecretEl.textContent = 'TOTP Secret: ' + ((data.totpSecret.length > 4) ? (data.totpSecret.slice(0, 2) + "*".repeat(data.totpSecret.length - 4) + data.totpSecret.slice(-2)) : "*".repeat(data.totpSecret.length - 1) + data.totpSecret.slice(-1));
       totpSecretEl.style.display = 'block';
       
       // Start displaying the TOTP
       startTOTPDisplay();
-    }
-    
-    // Load static TOTP settings
-    if (data.staticTotpEnabled) {
-      staticTotpEnabled.checked = true;
-    }
-    if (data.staticTotpCode) {
-      staticTotpCode.value = data.staticTotpCode;
     }
   });
 
@@ -72,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
               const secret = params.get('secret');
               if (secret) {
                 totpSecret = secret;
-                totpSecretEl.textContent = 'TOTP Secret: ' + secret;
+                totpSecretEl.textContent = 'TOTP Secret: ' + ((secret.length > 4) ? ("*".repeat(secret.length - 4) + secret.slice(-4)) : "*".repeat(secret.length - 1) + secret.slice(-1));
                 totpSecretEl.style.display = 'block';
                 chrome.storage.sync.set({ totpSecret: secret });
                 showStatus('TOTP secret extracted successfully!', 'success');
@@ -108,24 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
       password: password
     }, function() {
       showStatus('Credentials saved successfully!', 'success');
-    });
-  });
-  
-  // Save static TOTP settings
-  saveStaticBtn.addEventListener('click', function() {
-    const isEnabled = staticTotpEnabled.checked;
-    const code = staticTotpCode.value.trim();
-    
-    if (isEnabled && (!code || code.length !== 6 || !/^\d+$/.test(code))) {
-      showStatus('Please enter a valid 6-digit TOTP code', 'error');
-      return;
-    }
-    
-    chrome.storage.sync.set({
-      staticTotpEnabled: isEnabled,
-      staticTotpCode: code
-    }, function() {
-      showStatus('Static TOTP settings saved!', 'success');
     });
   });
   
@@ -180,11 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!totpSecret) return;
     
     try {
-      // Generate TOTP code
-      const token = generateTOTP(totpSecret);
-      
-      // Display the token
-      totpCodeEl.textContent = token;
+      // Generate and display the TOTP code
+      totpCodeEl.textContent = generateTOTP(totpSecret);
       
       // Update timer
       const now = Math.floor(Date.now() / 1000);
