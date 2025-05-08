@@ -26,7 +26,6 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     const passwordSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[4]/div/div[2]/span/input';
     const verifyButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
     const otherVerifyOptionsSelector = '/html/body/div[2]/main/div[2]/div/div/div[3]/div/a[1]';
-    const twoFAOptionSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/div/div[1]/div[2]/div[2]/a';
     const totpInputSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[4]/div/div[2]/span/input';
     const loginButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
 
@@ -95,15 +94,19 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     }
 
     async function select2FA() {
-      element = getElementByXPath(twoFAOptionSelector);
-      if (element) {
-        console.log(element)
-        console.log("Found 2FA selection btn");
-        element.click();
-        console.log("2FA option selected");
-        setTimeout(fillTOTP, timeout);
-      } else {
-        console.log("2FA selection btn not found");
+      const elements = document.getElementsByClassName("authenticator-description");
+      let found = false;
+      Array.from(elements).forEach(element => {
+        console.log(element);
+        if (element.innerHTML.includes("Google Authenticator")) {
+          found = true;
+          element.getElementsByTagName("a")[0].click();
+          console.log("Google Authenticator selected");
+          setTimeout(fillTOTP, timeout);
+        }
+      })
+      if (!found) {
+        console.log("Google Authenticator btn not found");
 
         element = getElementByXPath(otherVerifyOptionsSelector);
         if (element && element.innerHTML.includes("Verify with something else") && !document.body.textContent.includes("Verify with Google Authenticator")) {
@@ -112,7 +115,6 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
           setTimeout(select2FA, timeout);
           return;
         }
-
         fillTOTP().then();
       }
     }
