@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>USYD Auto Login</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #0056b3;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #003d7e;
+    }
+    .qr-section {
+      margin-bottom: 15px;
+    }
+    #qr-preview {
+      max-width: 100%;
+      display: none;
+      margin-top: 10px;
+    }
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .totp-display {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: #e9ecef;
+      border-radius: 4px;
+      display: none;
+    }
+    .totp-code {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-align: center;
+      color: #0056b3;
+    }
+    .totp-timer {
+      width: 100%;
+      height: 4px;
+      background-color: #dee2e6;
+      margin-top: 10px;
+      border-radius: 2px;
+    }
+    .totp-timer-progress {
+      height: 100%;
+      background-color: #0056b3;
+      border-radius: 2px;
+      transition: width 1s linear;
+    }
+    .static-totp-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #dee2e6;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .checkbox-container input {
+      margin-right: 8px;
+    }
+    .checkbox-container label {
+      display: inline;
+      font-weight: normal;
+    }
+    .alternative-section {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
+    h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>USYD Auto Login</h2>
+  
+  <div class="form-group">
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="UniKey">
+  </div>
+  
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Password">
+  </div>
+  
+  <div class="qr-section">
+    <label for="qr-upload">2FA QR Code:</label>
+    <input type="file" id="qr-upload" accept="image/*">
+    <img id="qr-preview" alt="QR Preview">
+    <p id="totp-secret" style="word-break: break-all; display: none;"></p>
+  </div>
+  
+  <button id="save-btn">Save Credentials</button>
+  
+  <div class="totp-display" id="totp-display">
+    <div>
+      <label>Current TOTP Code:</label>
+      <div class="totp-code" id="totp-code">------</div>
+      <div class="totp-timer">
+        <div class="totp-timer-progress" id="totp-timer-progress"></div>
+      </div>
+      <div style="text-align: center; margin-top: 8px; font-size: 12px;">
+        <span id="totp-seconds">30</span> seconds remaining
+      </div>
+    </div>
+  </div>
+  
+  <div class="alternative-section">
+    <h3>Alternative: Static TOTP</h3>
+    <p>If the dynamic TOTP doesn't work, you can use a static code:</p>
+    
+    <div class="checkbox-container">
+      <input type="checkbox" id="static-totp-enabled">
+      <label for="static-totp-enabled">Use static TOTP code</label>
+    </div>
+    
+    <div class="form-group">
+      <input type="text" id="static-totp-code" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]*">
+    </div>
+    
+    <button id="save-static-btn">Save Static TOTP</button>
+  </div>
+  
+  <div id="status-message" class="status"></div>
+  
+  <script src="../src/jsqr.js"></script>
+  <script src="../src/otpauth.js"></script>
+  <script src="../popup/popup.js"></script>
+</body>
+</html> 
