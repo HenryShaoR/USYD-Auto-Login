@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const uniKeyInput = document.getElementById('uniKey');
+  const title = document.getElementById('title');
   const passwordInput = document.getElementById('password');
   const qrUpload = document.getElementById('qr-upload');
   const qrPreview = document.getElementById('qr-preview');
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load saved credentials
   chrome.storage.sync.get(['uniKey', 'password', 'totpSecret'], function(data) {
-    if (data.uniKey) uniKeyInput.value = data.uniKey;
+    if (data.uniKey) title.innerText = `hello, ${data.uniKey}`.toUpperCase();
     if (data.totpSecret) {
       totpSecret = data.totpSecret;
       totpSecretEl.textContent = 'TOTP Secret: ' + ((data.totpSecret.length > 4) ? (data.totpSecret.slice(0, 2) + "*".repeat(data.totpSecret.length - 4) + data.totpSecret.slice(-2)) : "*".repeat(data.totpSecret.length - 1) + data.totpSecret.slice(-1));
@@ -56,12 +56,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (url.protocol === 'otpauth:') {
               const params = new URLSearchParams(url.search);
               const secret = params.get('secret');
-              if (secret) {
+              const uniKeyMatches = code.data.toLowerCase().match(/otpauth:\/\/totp\/[^:]+:([^?]+)/);
+              if (secret && uniKeyMatches) {
                 totpSecret = secret;
                 totpSecretEl.textContent = 'TOTP Secret: ' + ((secret.length > 4) ? ("*".repeat(secret.length - 4) + secret.slice(-4)) : "*".repeat(secret.length - 1) + secret.slice(-1));
                 totpSecretEl.style.display = 'block';
-                chrome.storage.sync.set({ totpSecret: secret });
-                showStatus('TOTP secret extracted successfully!', 'success');
+
+                const uniKey = uniKeyMatches[1];
+                title.innerText = `hello, ${uniKey}`.toUpperCase();
+
+                chrome.storage.sync.set({
+                  uniKey: uniKey,
+                  totpSecret: secret
+                });
+
+                showStatus('TOTP info extracted successfully!', 'success');
                 
                 // Start displaying the TOTP
                 startTOTPDisplay();
@@ -81,16 +90,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Save credentials
   saveButton.addEventListener('click', function() {
-    const uniKey = uniKeyInput.value.trim();
     const password = passwordInput.value.trim();
     
-    if (!uniKey || !password) {
-      showStatus('Please enter both uniKey and password', 'error');
+    if (!password) {
+      showStatus('Please enter your password', 'error');
       return;
     }
     
     chrome.storage.sync.set({
-      uniKey: uniKey,
       password: password
     }, function() {
       showStatus('Credentials saved successfully!', 'success');

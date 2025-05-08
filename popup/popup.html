@@ -40,6 +40,7 @@
       margin-bottom: 15px;
     }
     #qr-preview {
+      max-height: 100px;
       max-width: 100%;
       display: none;
       margin-top: 10px;
@@ -92,7 +93,7 @@
   </style>
 </head>
 <body>
-  <h2>USYD Auto Login</h2>
+  <h2 id="title">USYD Auto Login</h2>
 
   <div class="totp-display" id="totp-display">
     <div>
@@ -105,11 +106,6 @@
         <span id="totp-seconds">30</span> seconds remaining
       </div>
     </div>
-  </div>
-  
-  <div class="form-group">
-    <label for="uniKey">UniKey:</label>
-    <input type="text" id="uniKey" placeholder="UniKey">
   </div>
   
   <div class="form-group">
