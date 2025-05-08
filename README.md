@@ -8,7 +8,6 @@ This Chrome extension automatically logs you into the University of Sydney's Sin
 - Handles 2FA authentication using TOTP (Time-based One-Time Password)
 - Supports QR code scanning to set up TOTP authentication
 - Displays current TOTP code in the popup for manual login or authenticator setup
-- Offers a fallback static TOTP option for when the dynamic code doesn't work
 
 ## Installation
 
@@ -26,15 +25,6 @@ This Chrome extension automatically logs you into the University of Sydney's Sin
    - Click "Choose File" and select the QR code image
    - The extension will extract the TOTP secret key and display the current code
 4. Click "Save Credentials" to store your information securely in the browser
-
-### Static TOTP Option
-
-If the dynamic TOTP generation doesn't work correctly, you can use a static code:
-
-1. Check "Use static TOTP code"
-2. Enter a valid 6-digit code that works with your USYD account
-3. Click "Save Static TOTP"
-4. The extension will use this static code instead of generating dynamic codes
 
 ## Usage
 
