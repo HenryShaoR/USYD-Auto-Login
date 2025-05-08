@@ -114,7 +114,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         element = getElementByXPath(otherVerifyOptionsSelector);
         if (element && element.innerHTML.includes("Verify with something else") && !document.body.textContent.includes("Verify with Google Authenticator")) {
           element.click();
-          while (getElementByXPath(otherVerifyOptionsSelector)) {
+          while (getElementByXPath(otherVerifyOptionsSelector) && getElementByXPath(otherVerifyOptionsSelector).innerHTML.includes("Verify with something else")) {
             await sleep();
           }
           select2FA().then();
