@@ -154,7 +154,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         element = getElementByXPath(cancelSelector);
         if (element && element.innerHTML.includes("Cancel and take me to sign in")) {
           element.click();
-          while (getElementByXPath(cancelSelector)) {
+          while (getElementByXPath(cancelSelector) && getElementByXPath(cancelSelector).innerHTML.includes("Cancel and take me to sign in")) {
             await sleep();
           }
         }
