@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const usernameInput = document.getElementById('username');
+  const uniKeyInput = document.getElementById('uniKey');
   const passwordInput = document.getElementById('password');
   const qrUpload = document.getElementById('qr-upload');
   const qrPreview = document.getElementById('qr-preview');
@@ -15,9 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
   let totpUpdateInterval = null;
 
   // Load saved credentials
-  chrome.storage.sync.get(['username', 'password', 'totpSecret'], function(data) {
-    if (data.username) usernameInput.value = data.username;
-    if (data.password) passwordInput.value = data.password;
+  chrome.storage.sync.get(['uniKey', 'password', 'totpSecret'], function(data) {
+    if (data.uniKey) uniKeyInput.value = data.uniKey;
     if (data.totpSecret) {
       totpSecret = data.totpSecret;
       totpSecretEl.textContent = 'TOTP Secret: ' + ((data.totpSecret.length > 4) ? (data.totpSecret.slice(0, 2) + "*".repeat(data.totpSecret.length - 4) + data.totpSecret.slice(-2)) : "*".repeat(data.totpSecret.length - 1) + data.totpSecret.slice(-1));
@@ -82,20 +81,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Save credentials
   saveButton.addEventListener('click', function() {
-    const username = usernameInput.value.trim();
+    const uniKey = uniKeyInput.value.trim();
     const password = passwordInput.value.trim();
     
-    if (!username || !password) {
-      showStatus('Please enter both username and password', 'error');
+    if (!uniKey || !password) {
+      showStatus('Please enter both uniKey and password', 'error');
       return;
     }
     
     chrome.storage.sync.set({
-      username: username,
+      uniKey: uniKey,
       password: password
     }, function() {
       showStatus('Credentials saved successfully!', 'success');
     });
+
+    passwordInput.value = '';
   });
   
   // Function to start displaying TOTP codes
@@ -128,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Create a new TOTP instance
       const totp = new OTPAuth.TOTP({
-        issuer: 'USYD',
+        issuer: 'sso.sydney.edu.au',
         label: 'USYD Login',
         algorithm: 'SHA1',
         digits: 6,

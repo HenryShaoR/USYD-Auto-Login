@@ -2,8 +2,8 @@
 const timeout = 1000;
 if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
   // Get credentials from storage
-  chrome.storage.sync.get(['username', 'password', 'totpSecret'], function(data) {
-    if (!data.username || !data.password) {
+  chrome.storage.sync.get(['uniKey', 'password', 'totpSecret'], function(data) {
+    if (!data.uniKey || !data.password) {
       console.log('USYD Auto Login: Credentials not found');
       return;
     }
@@ -21,10 +21,11 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
 
     // XPath selectors
     const cancelSelector = '/html/body/div[2]/main/div[2]/div/div/div[3]/div/a';
-    const usernameSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[3]/div[1]/div[2]/span/input';
+    const uniKeySelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[3]/div[1]/div[2]/span/input';
     const nextButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
     const passwordSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[4]/div/div[2]/span/input';
     const verifyButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
+    const otherVerifyOptionsSelector = '/html/body/div[2]/main/div[2]/div/div/div[3]/div/a[1]';
     const twoFAOptionSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/div/div[1]/div[2]/div[2]/a';
     const totpInputSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[4]/div/div[2]/span/input';
     const loginButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
@@ -40,7 +41,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
 
         // Create a new TOTP instance
         const totp = new OTPAuth.TOTP({
-          issuer: 'USYD',
+          issuer: 'sso.sydney.edu.au',
           label: 'USYD Login',
           algorithm: 'SHA1',
           digits: 6,
@@ -57,20 +58,20 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     }
 
     async function fillUniKey() {
-      element = getElementByXPath(usernameSelector);
+      element = getElementByXPath(uniKeySelector);
       if (element) {
         console.log(element)
-        console.log("Found username field");
-        element.value = data.username;
+        console.log("Found UniKey field");
+        element.value = data.uniKey;
         element.dispatchEvent(new Event('input', { bubbles: true }));
-        console.log("Username filled");
+        console.log("UniKey filled");
 
         let nextButton = getElementByXPath(nextButtonSelector);
         nextButton.click();
         console.log("Next button clicked");
         setTimeout(fillPassword, timeout);
       } else {
-        console.log("Username field not found");
+        console.log("UniKey field not found");
         fillPassword().then();
       }
     }
@@ -103,6 +104,15 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         setTimeout(fillTOTP, timeout);
       } else {
         console.log("2FA selection btn not found");
+
+        element = getElementByXPath(otherVerifyOptionsSelector);
+        if (element && element.innerHTML.includes("Verify with something else") && !document.body.textContent.includes("Verify with Google Authenticator")) {
+          element.click();
+          console.log("Verify with something else clicked");
+          setTimeout(select2FA, timeout);
+          return;
+        }
+
         fillTOTP().then();
       }
     }

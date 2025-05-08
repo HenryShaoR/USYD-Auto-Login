@@ -85,12 +85,7 @@
       border-radius: 2px;
       transition: width 1s linear, background-color 0.5s ease;
     }
-    .static-totp-section {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #dee2e6;
-    }
-    h3 {
+    h2 {
       margin-top: 0;
       font-size: 16px;
     }
@@ -101,7 +96,7 @@
 
   <div class="totp-display" id="totp-display">
     <div>
-      <label>Current TOTP Code:</label>
+      <label>TOTP Code:</label>
       <div class="totp-code" id="totp-code">------</div>
       <div class="totp-timer">
         <div class="totp-timer-progress" id="totp-timer-progress"></div>
@@ -113,8 +108,8 @@
   </div>
   
   <div class="form-group">
-    <label for="username">Username:</label>
-    <input type="text" id="username" placeholder="UniKey">
+    <label for="uniKey">UniKey:</label>
+    <input type="text" id="uniKey" placeholder="UniKey">
   </div>
   
   <div class="form-group">
