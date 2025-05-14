@@ -103,7 +103,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
       }
       if (!found) {
         element = getElementBy("class", "link js-switchAuthenticator");
-        if (element && !document.body.textContent.includes("Google Authenticator")) {
+        if (element && !getElementBy("class", "bg-helper auth-beacon auth-beacon-factor mfa-google-auth")) {
           element.click();
           while (getElementBy("class", "link js-switchAuthenticator")) {
             await sleep();
@@ -120,7 +120,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
 
     function fillTOTP() {
       element = getElementBy("name", "credentials.passcode");
-      if (element && document.body.textContent.includes('Google Authenticator')) {
+      if (element && getElementBy("class", "bg-helper auth-beacon auth-beacon-factor mfa-google-auth")) {
         let totpCode;
 
         if (data.totpSecret) {

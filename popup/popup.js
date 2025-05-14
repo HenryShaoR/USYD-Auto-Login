@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
     reader.readAsDataURL(file);
   });
 
-  // Save credentials
+  // Update password
   saveButton.addEventListener('click', function() {
     const password = passwordInput.value.trim();
     
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.storage.sync.set({
       password: password
     }, function() {
-      showStatus('Credentials saved successfully!', 'success');
+      showStatus('Password updated successfully!', 'success');
     });
 
     passwordInput.value = '';
