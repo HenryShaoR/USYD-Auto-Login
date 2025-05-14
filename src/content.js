@@ -5,6 +5,19 @@ function sleep(ms = 200) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getElementBy(method, selector) {
+  switch (method.toLowerCase()) {
+    case 'class':
+      return document.getElementsByClassName(selector)[0];
+    case 'name':
+      return document.getElementsByName(selector)[0];
+  }
+}
+
+function next() {
+  getElementBy("class", "button button-primary").click();
+}
+
 if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
   // Get credentials from storage
   chrome.storage.sync.get(['uniKey', 'password', 'totpSecret'], function(data) {
@@ -22,27 +35,6 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
       missing = true;
     }
     if (missing) return;
-
-    // Helper function to get element by XPath
-    function getElementByXPath(xpath) {
-      return document.evaluate(
-        xpath,
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-      ).singleNodeValue;
-    }
-
-    // XPath selectors
-    const cancelSelector = '/html/body/div[2]/main/div[2]/div/div/div[3]/div/a';
-    const uniKeySelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[3]/div[1]/div[2]/span/input';
-    const nextButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
-    const passwordSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[4]/div/div[2]/span/input';
-    const verifyButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
-    const otherVerifyOptionsSelector = '/html/body/div[2]/main/div[2]/div/div/div[3]/div/a[1]';
-    const totpInputSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[1]/div[4]/div/div[2]/span/input';
-    const loginButtonSelector = '/html/body/div[2]/main/div[2]/div/div/div[2]/form/div[2]/input';
 
     // Function to generate TOTP
     function generateTOTP(secret) {
@@ -72,14 +64,13 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     }
 
     async function fillUniKey() {
-      element = getElementByXPath(uniKeySelector);
+      element = getElementBy("name", "identifier");
       if (element) {
         element.value = data.uniKey;
         element.dispatchEvent(new Event('input', { bubbles: true }));
 
-        let nextButton = getElementByXPath(nextButtonSelector);
-        nextButton.click();
-        while (getElementByXPath(uniKeySelector)) {
+        next();
+        while (getElementBy("name", "identifier")) {
           await sleep();
         }
       }
@@ -87,14 +78,13 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     }
 
     async function fillPassword() {
-      element = getElementByXPath(passwordSelector);
-      if (element && !document.body.textContent.includes("Verify with Google Authenticator")) {
+      element = getElementBy("class", "password-with-toggle");
+      if (element) {
         element.value = data.password;
         element.dispatchEvent(new Event('input', { bubbles: true }));
 
-        let verifyButton = getElementByXPath(verifyButtonSelector);
-        verifyButton.click();
-        while (getElementByXPath(passwordSelector) && document.body.textContent.includes("Verify with your password")) {
+        next();
+        while (getElementBy("class", "password-with-toggle")) {
           await sleep();
         }
       }
@@ -102,34 +92,35 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     }
 
     async function select2FA() {
-      const elements = document.getElementsByClassName("authenticator-description");
+      const elements = document.getElementsByClassName("authenticator-row clearfix");
       let found = false;
       for (const element1 of Array.from(elements)) {
-        if (element1.innerHTML.includes("Google Authenticator")) {
+        if (element1.getElementsByClassName("factor-icon authenticator-icon mfa-google-auth")) {
           found = true;
           element1.getElementsByTagName("a")[0].click();
+          break;
         }
       }
       if (!found) {
-        element = getElementByXPath(otherVerifyOptionsSelector);
-        if (element && element.innerHTML.includes("Verify with something else") && !document.body.textContent.includes("Verify with Google Authenticator")) {
+        element = getElementBy("class", "link js-switchAuthenticator");
+        if (element && !document.body.textContent.includes("Google Authenticator")) {
           element.click();
-          while (getElementByXPath(otherVerifyOptionsSelector) && getElementByXPath(otherVerifyOptionsSelector).innerHTML.includes("Verify with something else")) {
+          while (getElementBy("class", "link js-switchAuthenticator")) {
             await sleep();
           }
           select2FA().then();
           return;
         }
       }
-      while (!document.body.textContent.includes("Verify with Google Authenticator")) {
+      while (getElementBy("class", "authenticator-row clearfix")) {
         await sleep();
       }
       fillTOTP();
     }
 
     function fillTOTP() {
-      element = getElementByXPath(totpInputSelector);
-      if (element && document.body.textContent.includes('Verify with Google Authenticator')) {
+      element = getElementBy("name", "credentials.passcode");
+      if (element && document.body.textContent.includes('Google Authenticator')) {
         let totpCode;
 
         if (data.totpSecret) {
@@ -143,18 +134,18 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         element.dispatchEvent(new Event('input', { bubbles: true }));
 
         // Click login button
-        let loginButton = getElementByXPath(loginButtonSelector);
-        loginButton.click();
+        next();
       }
     }
 
     // Begin the login process
     async function performLogin() {
       try {
-        element = getElementByXPath(cancelSelector);
-        if (element && element.innerHTML.includes("Cancel and take me to sign in")) {
-          element.click();
-          while (getElementByXPath(cancelSelector) && getElementByXPath(cancelSelector).innerHTML.includes("Cancel and take me to sign in")) {
+        element = getElementBy("class", "link js-cancel-authenticator-challenge");
+        if (element) {
+          element[0].click();
+          console.log("clicked cancel");
+          while (getElementBy("class", "link js-cancel-authenticator-challenge")) {
             await sleep();
           }
         }
