@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
   const title = document.getElementById('title');
-  const passwordInput = document.getElementById('password');
   const qrUpload = document.getElementById('qr-upload');
   const qrPreview = document.getElementById('qr-preview');
   const totpSecretEl = document.getElementById('totp-secret');
+  const passwordInput = document.getElementById('password');
   const saveButton = document.getElementById('save-btn');
   const statusMessage = document.getElementById('status-message');
   const totpDisplay = document.getElementById('totp-display');

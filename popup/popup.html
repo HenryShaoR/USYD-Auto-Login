@@ -108,22 +108,22 @@
     </div>
   </div>
   
-  <div class="form-group">
-    <label for="password">Password:</label>
-    <input type="password" id="password" placeholder="Password">
-  </div>
-  
   <div class="qr-section">
     <label for="qr-upload">2FA QR Code:</label>
     <input type="file" id="qr-upload" accept="image/*">
     <img id="qr-preview" alt="QR Preview">
     <p id="totp-secret" style="word-break: break-all; display: none;"></p>
   </div>
+
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Password">
+  </div>
   
-  <button id="save-btn">Save Credentials</button>
+  <button id="save-btn">Update Password</button>
   
   <div id="status-message" class="status"></div>
-  
+
   <script src="../src/jsqr.js"></script>
   <script src="../src/otpauth.js"></script>
   <script src="../popup/popup.js"></script>
