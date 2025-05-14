@@ -1,6 +1,3 @@
-// Check if we're on the SSO login page
-const timeout = 1000;
-
 function sleep(ms = 200) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -18,6 +15,7 @@ function next() {
   getElementBy("class", "button button-primary").click();
 }
 
+// Check if we're on the SSO login page
 if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
   // Get credentials from storage
   chrome.storage.sync.get(['uniKey', 'password', 'totpSecret'], function(data) {
@@ -140,11 +138,15 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
 
     // Begin the login process
     async function performLogin() {
+      while (!getElementBy("class", "auth-org-logo")) {
+        await sleep();
+      }
+      await sleep();
+      
       try {
         element = getElementBy("class", "link js-cancel-authenticator-challenge");
         if (element) {
-          element[0].click();
-          console.log("clicked cancel");
+          element.click();
           while (getElementBy("class", "link js-cancel-authenticator-challenge")) {
             await sleep();
           }
@@ -156,7 +158,6 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
     }
 
     let element;
-    // Wait a moment for the page to fully load before starting
-    setTimeout(performLogin, timeout);
+    performLogin().then();
   });
 } 
