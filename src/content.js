@@ -21,15 +21,15 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
   chrome.storage.sync.get(['uniKey', 'password', 'totpSecret'], function(data) {
     let missing = false;
     if (!data.uniKey) {
-      console.error('Missing uniKey');
+      console.log('Missing uniKey');
       missing = true;
     }
     if (!data.password) {
-      console.error('Missing password');
+      console.log('Missing password');
       missing = true;
     }
     if (!data.totpSecret) {
-      console.error('Missing TOTP secret');
+      console.log('Missing TOTP secret');
       missing = true;
     }
     if (missing) return;
@@ -39,7 +39,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
       try {
         // Check if OTPAuth is available
         if (typeof OTPAuth === 'undefined') {
-          console.error('OTPAuth library not loaded');
+          console.log('OTPAuth library not loaded');
           return 'ERROR';
         }
 
@@ -56,7 +56,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         // Generate the token
         return totp.generate();
       } catch (error) {
-        console.error('TOTP generation error:', error);
+        console.log('TOTP generation error:', error);
         return 'ERROR';
       }
     }
@@ -124,7 +124,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         if (data.totpSecret) {
           totpCode = generateTOTP(data.totpSecret);
         } else {
-          console.error("No TOTP method available");
+          console.log("No TOTP method available");
           return;
         }
 
@@ -153,7 +153,7 @@ if (window.location.href.startsWith('https://sso.sydney.edu.au/')) {
         }
         fillUniKey().then();
       } catch (error) {
-        console.error("Error during auto-login:", error);
+        console.log("Error during auto-login:", error);
       }
     }
 

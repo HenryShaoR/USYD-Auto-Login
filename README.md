@@ -58,13 +58,12 @@ The extension detects when you are on the SSO login page and automatically:
 ```
 USYD-Auto-Login/
 │
-├── manifest.json          - Extension configuration
+├── manifest.json         - Extension configuration
 ├── popup/
 │   ├── popup.html        - Extension popup interface
 │   └── popup.js          - Popup functionality
 │
 └── src/
-    ├── background.js     - Background service worker
     ├── content.js        - Content script for auto-filling
     ├── jsqr.js           - QR code scanning library
     └── otpauth.js        - TOTP generation library

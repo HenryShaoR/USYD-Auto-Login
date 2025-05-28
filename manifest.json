@@ -19,8 +19,5 @@
       "matches": ["https://sso.sydney.edu.au/*"],
       "js": ["src/otpauth.js", "src/content.js"]
     }
-  ],
-  "background": {
-    "service_worker": "src/background.js"
-  }
+  ]
 } 
